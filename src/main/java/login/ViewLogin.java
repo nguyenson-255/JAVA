@@ -78,7 +78,9 @@ public class ViewLogin extends JFrame implements ActionListener {
     }
 
     public static void main(String[] args) {
-        ViewLogin v = new ViewLogin();
+
+        Client c = new Client("a");
+//        ViewLogin v = new ViewLogin();
     }
 
 

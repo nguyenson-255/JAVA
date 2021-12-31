@@ -44,6 +44,10 @@ public class ServerThread extends JFrame implements Runnable {
         return os;
     }
 
+    public BufferedReader getIs() {
+        return is;
+    }
+
     @Override
     public void run() {
         try {
@@ -61,7 +65,6 @@ public class ServerThread extends JFrame implements Runnable {
                     break;
                 }
                 String[] messageSplit = message.split(",");
-                System.out.println(message);
                 if(messageSplit[0].equals("send-to-person")){
                     Server.serverThreadBus.sendMessageToPersion(Integer.parseInt(messageSplit[3]),"Client "+ messageSplit[2]+" (tới bạn): "+messageSplit[1]);
                 }
@@ -71,6 +74,14 @@ public class ServerThread extends JFrame implements Runnable {
                     System.out.println(Integer.parseInt(messageSplit[1])+" đã thoát");
                     Server.serverThreadBus.sendOnlineList();
                     Server.serverThreadBus.mutilCastSend("global-message"+","+"---Client "+Integer.parseInt(messageSplit[1])+" đã thoát---");
+                }
+                if (messageSplit[0].equals("send-file-to-person")){
+
+                    String filename = messageSplit[1];
+                    String filecontent =  messageSplit[2];
+                    int idsend = Integer.parseInt(messageSplit[4]);
+
+                    Server.serverThreadBus.sendFileToPerson(idsend,filename,filecontent,"Client "+ messageSplit[3]+" (tới bạn): "+filename);
                 }
             }
         } catch (IOException e) {

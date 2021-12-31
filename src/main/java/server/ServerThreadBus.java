@@ -69,6 +69,22 @@ public class ServerThreadBus {
             }
         }
     }
+    public void sendFileToPerson(int id, String fileName,String fileContent,String msg){
+        for(ServerThread serverThread : Server.serverThreadBus.getListServerThreads()){
+            if(serverThread.getClientNumber()==id){
+                Server.serverThreadBus.sendMessageToPersion(id,msg);
+                try {
+                    serverThread.getOs().write("receive-file"+","+fileName+","+fileContent);
+                    serverThread.getOs().newLine();
+                    serverThread.getOs().flush();
+                    break;
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+    }
+
     public void remove(int id){
         for(int i=0; i<Server.serverThreadBus.getLength(); i++){
             if(Server.serverThreadBus.getListServerThreads().get(i).getClientNumber()==id){

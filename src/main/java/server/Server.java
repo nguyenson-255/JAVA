@@ -1,6 +1,9 @@
 package server;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -19,7 +22,7 @@ public class Server {
         int clientNumber = 0;
 
         try {
-            listener = new ServerSocket(9999);
+            listener = new ServerSocket(7777);
         } catch (IOException e) {
             System.out.println(e);
             System.exit(1);
@@ -33,13 +36,11 @@ public class Server {
         );
         try {
             while (true) {
-
                 socketOfServer = listener.accept();
                 ServerThread serverThread = new ServerThread(socketOfServer, clientNumber++);
                 serverThreadBus.add(serverThread);
                 System.out.println("Số thread đang chạy là: "+serverThreadBus.getLength());
                 executor.execute(serverThread);
-
             }
         } catch (IOException ex) {
             ex.printStackTrace();

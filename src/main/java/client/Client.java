@@ -12,19 +12,22 @@ import server.ServerThreadBus;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 
 public class Client extends JFrame implements ActionListener{
+
+
+
+
     //back-end
     private Thread thread;
     private BufferedWriter os;
@@ -36,12 +39,18 @@ public class Client extends JFrame implements ActionListener{
 
     // UI
 
+    private JButton jButton4;
+    private JButton jButton;
     private JButton jButton1;
     private JButton jButton2;
     private JComboBox<String> jComboBox1;
+    private JComboBox<String> jComboBox2;
+    private JLabel jLabel;
+    private JLabel jfilename;
     private JLabel jLabel1;
     private JLabel jLabel2;
     private JLabel jLabel3;
+    private JPanel jPanel;
     private JPanel jPanel1;
     private JPanel jPanel2;
     private JPanel jPanel3;
@@ -51,8 +60,12 @@ public class Client extends JFrame implements ActionListener{
     private JTextArea jTextArea1;
     private JTextArea jTextArea2;
     private JTextField jTextField1;
+    private JPanel jPanel4;
+    private JLabel jLabel4;
+    private File[] fileToSend;
 
     public Client(String text) {
+        fileToSend = new File[1];
         initComponents();
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
@@ -67,6 +80,7 @@ public class Client extends JFrame implements ActionListener{
     private void initComponents() {
 
         jPanel3 = new JPanel();
+        jPanel3.setLayout(new BoxLayout(jPanel3,BoxLayout.Y_AXIS));
 
         jTabbedPane1 = new JTabbedPane();
         jPanel1 = new JPanel();
@@ -80,9 +94,12 @@ public class Client extends JFrame implements ActionListener{
         jTextField1 = new JTextField();
         jButton1 = new JButton();
         jComboBox1 = new JComboBox<>();
+        jComboBox2 = new JComboBox<>();
         jLabel1 = new JLabel();
         jLabel2 = new JLabel();
         jLabel3 = new JLabel();
+        jLabel4 = new JLabel();
+
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -108,6 +125,9 @@ public class Client extends JFrame implements ActionListener{
         jComboBox1.addActionListener(this);
         jComboBox1.setActionCommand("JCOMBOX");
 
+        jComboBox2.addActionListener(this);
+        jComboBox2.setActionCommand("JCOMBOX1");
+
         jLabel1.setText("Chọn người nhân");
 
         jLabel2.setText("Nhập tin nhắn");
@@ -128,6 +148,49 @@ public class Client extends JFrame implements ActionListener{
 
 
         jTabbedPane1.addTab("Nhắn tin", jPanel2);
+
+
+        jLabel = new JLabel("File");
+        jLabel.setFont(new Font("Arial", Font.BOLD, 25));
+        jLabel.setBorder(new EmptyBorder(20, 0, 10, 0));
+        jLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        jfilename = new JLabel("Choose file");
+        jfilename.setFont(new Font("Arial", Font.BOLD, 20));
+        jfilename.setBorder(new EmptyBorder(50, 0, 00, 0));
+        jfilename.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        jPanel = new JPanel();
+        jPanel.setBorder(new EmptyBorder(75, 0, 10, 0));
+
+        jButton = new JButton("SendFile");
+        jButton.setPreferredSize(new Dimension(150, 75));
+        jButton.setFont(new Font("Arial", Font.BOLD, 20));
+
+        jButton4 = new JButton("ChooseFile");
+        jButton4.setPreferredSize(new Dimension(150, 75));
+        jButton4.setFont(new Font("Arial", Font.BOLD, 20));
+
+        jButton.addActionListener(this);
+        jButton.setActionCommand("SFILE");
+        jButton4.addActionListener(this);
+        jButton4.setActionCommand("CHO");
+
+
+        jPanel4 = new JPanel(new FlowLayout());
+        jPanel.add(jButton);
+        jPanel.add(jButton4);
+        jPanel4.add(jComboBox2);
+        jPanel.add(jComboBox2);
+
+        jLabel4.setFont(new Font("Tahoma", 1, 12)); // NOI18N
+        jLabel4.setHorizontalAlignment(SwingConstants.CENTER);
+        jLabel4.setText("{Người nhận}");
+
+        jPanel3.add(jLabel4);
+        jPanel3.add(jPanel4);
+        jPanel3.add(jfilename);
+        jPanel3.add(jPanel);
 
         jTabbedPane1.addTab("Gửi File",jPanel3);
 
@@ -150,7 +213,7 @@ public class Client extends JFrame implements ActionListener{
                 public void run() {
 
                     try {
-                        socketOfClient = new Socket("localhost", 9999);
+                        socketOfClient = new Socket("localhost", 7777);
                         System.out.println("Kết nối thành công!");
                         os = new BufferedWriter(new OutputStreamWriter(socketOfClient.getOutputStream()));
                         is = new BufferedReader(new InputStreamReader(socketOfClient.getInputStream()));
@@ -180,6 +243,25 @@ public class Client extends JFrame implements ActionListener{
                                 jTextArea1.setText(jTextArea1.getText()+messageSplit[1]+"\n");
                                 jTextArea1.setCaretPosition(jTextArea1.getDocument().getLength());
                             }
+                            if (messageSplit[0].equals("receive-file")){
+                                String fileContent = messageSplit[2];
+                                fileContent = fileContent.replaceAll("[|]",",");
+                                byte[] fileContentBytes = fileContent.getBytes();
+
+                                int input = JOptionPane.showConfirmDialog(null,
+                                        "Do you want to Download File "+messageSplit[1]+"?", "Select an Option...",JOptionPane.YES_NO_OPTION);
+
+                                if (input == 0){
+                                        File f = new File(messageSplit[1]);
+                                        FileOutputStream fos = new FileOutputStream(f);
+                                        fos.write(fileContentBytes);
+                                        fos.close();
+                                }else if (input == 1){
+
+                                }
+
+
+                            }
                         }
                     os.close();
                     is.close();
@@ -197,10 +279,13 @@ public class Client extends JFrame implements ActionListener{
     }
     private void updateCombobox(){
         jComboBox1.removeAllItems();
+        jComboBox2.removeAllItems();
+
         String idString = ""+this.id;
         for(String e : onlineList){
             if(!e.equals(idString)){
                 jComboBox1.addItem("Client "+ e);
+                jComboBox2.addItem("Client "+ e);
             }
         }
         
@@ -211,7 +296,50 @@ public class Client extends JFrame implements ActionListener{
 
         String cmt = e.getActionCommand();
 
-        if (cmt == "JCOMBOX"){
+        if (cmt == "SFILE"){
+
+            if (fileToSend[0] == null){
+                jfilename.setText("Please choose file first");
+
+            }else {
+                try {
+                    FileInputStream fis = new FileInputStream(fileToSend[0].getAbsolutePath());
+                    String filename = fileToSend[0].getName();
+                    byte[] filecontentBytes = new byte[(int) fileToSend[0].length()];
+                    fis.read(filecontentBytes);
+                    String filecontent = new String(filecontentBytes);
+
+                    filecontent = filecontent.replaceAll("\t", "");
+                    filecontent = filecontent.replaceAll("\n", "");
+                    filecontent = filecontent.replaceAll("\r", "");
+                    filecontent = filecontent.replaceAll(",","|");
+
+                    String[] parner = ((String)jComboBox2.getSelectedItem()).split(" ");
+                    os.write("send-file-to-person"+","+filename+","+filecontent+","+this.id+","+parner[1]);
+                    os.newLine();
+                    os.flush();
+
+                    jTextArea1.setText(jTextArea1.getText()+"Bạn (tới Client "+parner[1]+"): "+filename+"\n");
+                    jTextArea1.setCaretPosition(jTextArea1.getDocument().getLength());
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
+                }
+
+
+            }
+
+        }
+        else if (cmt == "CHO"){
+            JFileChooser jFileChooser = new JFileChooser();
+            jFileChooser.setDialogTitle("chosse file send");
+            if (jFileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                fileToSend[0] = jFileChooser.getSelectedFile();
+                jfilename.setText("the file you want to send is : "+ fileToSend[0].getName());
+            }
+        }
+        else if (cmt == "JCOMBOX1"){
+            jLabel4.setText("Đang nhắn với "+jComboBox2.getSelectedItem());
+        }else if (cmt == "JCOMBOX"){
                 jLabel3.setText("Đang nhắn với "+jComboBox1.getSelectedItem());
         }else if (cmt == "SENDMSG"){
             String messageContent = jTextField1.getText();
