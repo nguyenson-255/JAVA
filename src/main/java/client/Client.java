@@ -5,6 +5,10 @@
  */
 package client;
 
+import server.Server;
+import server.ServerThread;
+import server.ServerThreadBus;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,13 +25,32 @@ import java.util.List;
 import javax.swing.*;
 
 public class Client extends JFrame implements ActionListener{
-
+    //back-end
     private Thread thread;
     private BufferedWriter os;
     private BufferedReader is;
     private Socket socketOfClient;
     private List<String> onlineList;
     private int id;
+
+
+    // UI
+
+    private JButton jButton1;
+    private JButton jButton2;
+    private JComboBox<String> jComboBox1;
+    private JLabel jLabel1;
+    private JLabel jLabel2;
+    private JLabel jLabel3;
+    private JPanel jPanel1;
+    private JPanel jPanel2;
+    private JPanel jPanel3;
+    private JScrollPane jScrollPane1;
+    private JScrollPane jScrollPane2;
+    private JTabbedPane jTabbedPane1;
+    private JTextArea jTextArea1;
+    private JTextArea jTextArea2;
+    private JTextField jTextField1;
 
     public Client(String text) {
         initComponents();
@@ -127,13 +150,9 @@ public class Client extends JFrame implements ActionListener{
                 public void run() {
 
                     try {
-                        // Gửi yêu cầu kết nối tới Server đang lắng nghe
-                        // trên máy 'localhost' cổng 7777.
                         socketOfClient = new Socket("localhost", 9999);
                         System.out.println("Kết nối thành công!");
-                        // Tạo luồng đầu ra tại client (Gửi dữ liệu tới server)
                         os = new BufferedWriter(new OutputStreamWriter(socketOfClient.getOutputStream()));
-                        // Luồng đầu vào tại Client (Nhận dữ liệu từ server).
                         is = new BufferedReader(new InputStreamReader(socketOfClient.getInputStream()));
                         String message;
                         while (true) {
@@ -143,8 +162,8 @@ public class Client extends JFrame implements ActionListener{
                             }
                             String[] messageSplit = message.split(",");
                             if(messageSplit[0].equals("get-id")){
-                                setID(Integer.parseInt(messageSplit[1]));
-                                setIDTitle();
+                                id = Integer.parseInt(messageSplit[1]);
+                                setTitle("Client "+ id);
                             }
                             if (messageSplit[0].equals("update-online-list")) {
                                 onlineList = new ArrayList<>();
@@ -162,9 +181,9 @@ public class Client extends JFrame implements ActionListener{
                                 jTextArea1.setCaretPosition(jTextArea1.getDocument().getLength());
                             }
                         }
-//                    os.close();
-//                    is.close();
-//                    socketOfClient.close();
+                    os.close();
+                    is.close();
+                    socketOfClient.close();
                     } catch (UnknownHostException e) {
                         return;
                     } catch (IOException e) {
@@ -186,34 +205,6 @@ public class Client extends JFrame implements ActionListener{
         }
         
     }
-    private void setIDTitle(){
-        this.setTitle("Client "+this.id);
-    }
-    private void setID(int id){
-        this.id = id;
-    }
-    /**
-     * @param args the command line arguments
-     */
-//    public static void main(String args[]) {
-//        Client client = new Client();
-//    }
-
-    private JButton jButton1;
-    private JButton jButton2;
-    private JComboBox<String> jComboBox1;
-    private JLabel jLabel1;
-    private JLabel jLabel2;
-    private JLabel jLabel3;
-    private JPanel jPanel1;
-    private JPanel jPanel2;
-    private JPanel jPanel3;
-    private JScrollPane jScrollPane1;
-    private JScrollPane jScrollPane2;
-    private JTabbedPane jTabbedPane1;
-    private JTextArea jTextArea1;
-    private JTextArea jTextArea2;
-    private JTextField jTextField1;
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -244,9 +235,12 @@ public class Client extends JFrame implements ActionListener{
         }
         else if (cmt == "EXIT"){
 
-            onlineList.remove(""+this.id);
-            for (String al: onlineList){
-                System.out.println(al);
+            try {
+            os.write("log-out"+","+this.id);
+            os.newLine();
+            os.flush();
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra");
             }
             try {
                 socketOfClient.close();
@@ -258,5 +252,4 @@ public class Client extends JFrame implements ActionListener{
 
         }
     }
-    // End of variables declaration//GEN-END:variables
 }

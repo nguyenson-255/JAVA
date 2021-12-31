@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 public class ViewLogin extends JFrame implements ActionListener {
+    private  JButton btn1;
     private JLabel l1,l2,l3;
     private JButton btn;
     private JTextField t1,t2,t3;
@@ -29,6 +30,7 @@ public class ViewLogin extends JFrame implements ActionListener {
         l2 = new JLabel("password");
         t2 = new JPasswordField(20);
         btn = new JButton("Login");
+        btn1 = new JButton("Register");
         l3 = new JLabel();
 
         p1.add(l1);
@@ -39,10 +41,13 @@ public class ViewLogin extends JFrame implements ActionListener {
         add(p1);
         add(p2);
         add(btn);
+        add(btn1);
         add(l3);
         ds = File.docFile("user.txt");
         btn.addActionListener(this);
-
+        btn.setActionCommand("LOG");
+        btn1.addActionListener(this);
+        btn1.setActionCommand("RES");
 
         setSize(450,250);
         setLayout(new BoxLayout(getContentPane(),BoxLayout.Y_AXIS));
@@ -51,22 +56,25 @@ public class ViewLogin extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        for (User t : ds){
-            if (t.checkAccount(t1.getText(),t2.getText())){
-                setVisible(false);
-                Thread thread = new Thread(){
-                    @Override
-                    public void run() {
-                        Client c = new Client(t1.getText());
-                    }
-                };
-                thread.start();
-                break;
+        if (e.getActionCommand() == "LOG"){
+            for (User t : ds){
+                if (t.checkAccount(t1.getText(),t2.getText())){
+                    setVisible(false);
+                    Thread thread = new Thread(){
+                        @Override
+                        public void run() {
+                            Client c = new Client(t1.getText());
+                        }
+                    };
+                    thread.start();
+                    break;
+                }
+
             }
-
+        }else if (e.getActionCommand() == "RES"){
+            ViewRegister v = new ViewRegister();
+            setVisible(false);
         }
-
-
     }
 
     public static void main(String[] args) {

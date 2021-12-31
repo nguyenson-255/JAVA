@@ -1,6 +1,7 @@
 package Register;
 
 import io.File;
+import login.ViewLogin;
 import model.User;
 
 import javax.swing.*;
@@ -58,6 +59,7 @@ public class ViewRegister extends JFrame implements ActionListener {
         if (t1.getText()!="" && t2.getText()!="" &&t3.getText()!=""){
             ds.add(new User(t1.getText(),t2.getText(),t3.getText()));
             File.luuFile("user.txt",ds);
+            ViewLogin viewLogin = new ViewLogin();
         }
 
         ds = File.docFile("user.txt");
@@ -66,7 +68,4 @@ public class ViewRegister extends JFrame implements ActionListener {
         }
     }
 
-    public static void main(String[] args) {
-        ViewRegister v = new ViewRegister();
-    }
 }

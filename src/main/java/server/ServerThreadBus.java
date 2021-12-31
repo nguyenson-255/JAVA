@@ -33,7 +33,10 @@ public class ServerThreadBus {
     public void mutilCastSend(String message){ //like sockets.emit in socket.io
         for(ServerThread serverThread : Server.serverThreadBus.getListServerThreads()){
             try {
-                serverThread.write(message);
+                serverThread.getOs().write(message);
+                serverThread.getOs().newLine();
+                serverThread.getOs().flush();
+
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -56,7 +59,9 @@ public class ServerThreadBus {
         for(ServerThread serverThread : Server.serverThreadBus.getListServerThreads()){
             if(serverThread.getClientNumber()==id){
                 try {
-                    serverThread.write("global-message"+","+message);
+                    serverThread.getOs().write("global-message"+","+message);
+                    serverThread.getOs().newLine();
+                    serverThread.getOs().flush();
                     break;
                 } catch (IOException ex) {
                     ex.printStackTrace();
